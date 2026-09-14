@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Calendar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="app">
+ <div class="layout">
+
+  <!-- ===== Main calendar card ===== -->
+  <main class="card" id="calendarCard">
+
+    <header class="card-header">
+      <div class="title-block">
+        <h1 id="monthYearLabel">Month Year</h1>
+        <p class="subtitle" id="todayInfo">Today &middot; Week --</p>
+      </div>
+      <button id="themeToggle" class="icon-btn" type="button" aria-label="Toggle dark or light mode" title="Toggle dark / light mode">
+        <svg id="iconMoon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
+        <svg id="iconSun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" hidden><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+      </button>
+    </header>
+
+    <div class="nav-row">
+      <button id="prevMonth" class="nav-btn" type="button" aria-label="Previous month">&lsaquo;</button>
+
+      <div class="selectors">
+        <select id="monthSelect" aria-label="Month"></select>
+        <select id="yearSelect" aria-label="Year"></select>
+      </div>
+
+      <button id="nextMonth" class="nav-btn" type="button" aria-label="Next month">&rsaquo;</button>
+    </div>
+
+    <div class="grid-wrap">
+      <div class="weekday-row">
+        <span class="wk-label">Wk</span>
+        <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+      </div>
+      <div id="calendarGrid" class="calendar-grid" role="grid"></div>
+    </div>
+
+    <footer class="card-footer">
+      <button id="todayBtn" class="ghost-btn" type="button">Jump to today</button>
+      <div class="footer-right">
+        <button id="addEventBtn" class="primary-btn" type="button">+ Add event</button>
+        <button id="allEventsBtn" class="ghost-btn" type="button">All events</button>
+      </div>
+    </footer>
+
+
+  </main>
+
+  <!-- ===== Right-side events drawer ===== -->
+  <aside id="eventsDrawer" class="drawer" aria-hidden="true">
+    <div class="drawer-header">
+      <h2>All events</h2>
+      <button id="closeDrawer" class="icon-btn" type="button" aria-label="Close events list">&times;</button>
+    </div>
+
+    <div id="eventsList" class="events-list"></div>
+
+    <div class="drawer-footer">
+      <button id="sheetConnectBtn" class="ghost-btn small sheet-connect-btn" type="button">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Import events
+      </button>
+    </div>
+  </aside>
+
+ </div>
+
+  <div id="backdrop" class="backdrop" hidden></div>
+
+  <!-- ===== Add / edit event modal ===== -->
+  <div id="eventModal" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modalDateLabel">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 id="modalDateLabel">Date</h2>
+        <button id="closeModal" class="icon-btn" type="button" aria-label="Close">&times;</button>
+      </div>
+
+      <div id="existingEventsList" class="existing-events"></div>
+
+      <form id="eventForm">
+        <input type="hidden" id="eventId" />
+
+        <label for="eventTitle">Title</label>
+        <input id="eventTitle" type="text" required placeholder="e.g. Dentist appointment" maxlength="120" />
+
+        <div class="form-row">
+          <div class="form-field">
+            <label for="eventStartDate">Starts</label>
+            <input id="eventStartDate" type="date" required />
+          </div>
+          <div class="form-field">
+            <label for="eventEndDate">Ends</label>
+            <input id="eventEndDate" type="date" />
+          </div>
+          <div class="form-field color-field">
+            <label for="eventColor">Color</label>
+            <input id="eventColor" type="color" value="#ff9a62" />
+          </div>
+        </div>
+
+        <label for="eventNotes">Notes <span class="optional">(optional)</span></label>
+        <textarea id="eventNotes" rows="3" maxlength="500" placeholder="Add any details…"></textarea>
+
+        <div class="modal-actions">
+          <button type="button" id="deleteEventBtn" class="danger-btn" hidden>Delete</button>
+          <button type="submit" class="primary-btn">Save event</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== Import modal (local CSV file, no cloud service) ===== -->
+  <div id="sheetModal" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="sheetModalLabel">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 id="sheetModalLabel">Import events</h2>
+        <button id="closeSheetModal" class="icon-btn" type="button" aria-label="Close">&times;</button>
+      </div>
+      <form id="sheetForm">
+        <p style="font-size:0.8rem;color:var(--muted);margin:0 0 4px;">Your events are saved automatically in this browser. If you have a CSV file of events, you can import it here.</p>
+        <input id="importCsvFileInput" type="file" accept=".csv,text/csv" hidden />
+        <p id="syncStatus" class="sync-status" aria-live="polite" style="margin-top:8px;"></p>
+        <div class="modal-actions">
+          <button type="button" id="importCsvBtn" class="primary-btn">Import from file</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" hidden></div>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
